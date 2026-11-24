@@ -1,4 +1,0 @@
-#sidebar { --bs-offcanvas-width: 250px; }
-@media (min-width: 992px) { #sidebarWrap { top: 56px; height: calc(100vh - 56px); } }
-pre.json { max-height: 420px; overflow: auto; white-space: pre-wrap; }
-textarea.json { font-family: var(--bs-font-monospace); font-size: .85rem; }
