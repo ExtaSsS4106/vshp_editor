@@ -1,0 +1,25 @@
+{
+  "comment": "Поисковые ссылки для сценария «Библиотека — собрать ссылки» (collect). Можно дополнять вручную.",
+  "links": [
+    "https://erp.vshp.online/material_sources?q=Базовый+английский+язык&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Конспект%3A&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=основы+бухгалтерского+учета&organization[]=4&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=дизайн+продукта+класса+люкс&organization[]=4&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Управление+инновациями&organization[]=4&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Углублённое+машинное+обучение+и+применение+искусственного+интеллекта&organization[]=4&section=&s=&l=&missed=1",
+    "https://erp.vshp.online/material_sources?q=введение+в+программирование&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Теория+международных+отношений&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=международные+финансы&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=история+и+будущее+бизнеса&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=визуализация+данных&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Введение+в+системы+баз+данных&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=кейтеринг&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Business+Ethics&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Поведенческие+финансы+и+когнитивные+искажения&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Введение+в+искусственный+интеллект&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Виды+моделей+искусственного+интеллекта+и+особенности+применения&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Прикладные+области+применения+искусственного+интеллекта&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Инструменты+и+платформы+искусственного+интеллекта&section=&s=&l=",
+    "https://erp.vshp.online/material_sources?q=Оценка+и+оптимизация+моделей+ИИ%3A+Метрики%2C+Практика+и+Этика&section=&s=&l="
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "file": "test_1413.json",
+  "id": "test_1413",
+  "url": "https://erp.vshp.online/tests/tests/1413/questions",
+  "local_count": 20,
+  "remote_count": 20,
+  "remote_last": "Какое требование относится к профессионально-этическим нормам психодиагностики?",
+  "network": true,
+  "to_upload": 0
+}

@@ -1,7 +1,9 @@
-venv/
-.venv/
 __pycache__/
-*.pyc
+*.py[cod]
 .env
-db.sqlite3
-data/
+logs/
+data/tests_progress.json
+data/tests_out.json
+data/materials_out.json
+data/library_out.json
+data/list_files.txt

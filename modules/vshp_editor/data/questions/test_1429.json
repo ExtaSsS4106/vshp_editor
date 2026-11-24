@@ -1,0 +1,487 @@
+{
+  "id": "1429",
+  "url": "https://erp.vshp.online/tests/tests/1429/questions",
+  "questions": [
+    {
+      "question": "Прочитай предложение и выбери вариант, где слово rate передано по смыслу правильно. The inflation rate rose to 4.5% last quarter.",
+      "answer": [
+        "темп"
+      ],
+      "variants": [
+        "ставка",
+        "темп",
+        "уровень",
+        "курс"
+      ]
+    },
+    {
+      "question": "Прочитай фрагмент и выбери слово, которое лучше всего подходит по смыслу и грамматике. To improve efficiency, the company decided to __________ its production process.",
+      "answer": [
+        "optimize"
+      ],
+      "variants": [
+        "optimize",
+        "optimizee",
+        "optimizate",
+        "optimised"
+      ]
+    },
+    {
+      "question": "Прочитай абзац и выбери утверждение, которое точно соответствует тексту. Sales increased by 12% in Q3, mainly due to the new distribution channel in Southeast Asia. The marketing campaign contributed, but its effect was secondary.",
+      "answer": [
+        "The new distribution channel was the primary driver of the sales increase."
+      ],
+      "variants": [
+        "The marketing campaign was the main reason for the sales growth.",
+        "The new distribution channel was the primary driver of the sales increase.",
+        "Sales dropped by 12% because the campaign was ineffective.",
+        "Southeast Asia showed no impact on quarterly results."
+      ]
+    },
+    {
+      "question": "Прочитай предложение и выбери правильную транскрипцию слова revenue. Revenue growth exceeded forecasts by 3 percentage points.",
+      "answer": [
+        "/ˈrev.ən.juː/"
+      ],
+      "variants": [
+        "/ˈrev.ə.nuː/",
+        "/rɪˈvjuːn/",
+        "/ˈrev.ən.juː/",
+        "/rɪˈven.juː/"
+      ]
+    },
+    {
+      "question": "Прочитай фразу и определи, какой вариант передаёт смысл без искажений. We aim to streamline the onboarding process for new hires.",
+      "answer": [
+        "Мы стремимся упростить и ускорить процесс адаптации новых сотрудников."
+      ],
+      "variants": [
+        "Мы хотим усложнить процесс адаптации новых сотрудников.",
+        "Мы стремимся упростить и ускорить процесс адаптации новых сотрудников.",
+        "Мы планируем полностью отменить адаптацию новых сотрудников.",
+        "Мы намерены увеличить количество этапов адаптации."
+      ]
+    },
+    {
+      "question": "Прочитай небольшой текст и ответь на вопрос по содержанию. The board approved a capital expenditure plan worth $25 million to upgrade IT infrastructure. The investment is expected to reduce operational costs by 15% over three years. What is the expected outcome of the investment?",
+      "answer": [
+        "Reduction of operational costs by 15% within three years."
+      ],
+      "variants": [
+        "Immediate profit of $25 million.",
+        "Reduction of operational costs by 15% within three years.",
+        "Doubling of the company’s revenue.",
+        "Complete replacement of all current staff."
+      ]
+    },
+    {
+      "question": "Прочитай предложение и выбери слово, которое правильно согласуется с подлежащим. Each department __________ required to submit a quarterly report.",
+      "answer": [
+        "is"
+      ],
+      "variants": [
+        "are",
+        "were",
+        "is",
+        "be"
+      ]
+    },
+    {
+      "question": "Прочитай текст и выбери заголовок, который лучше всего отражает его суть. A recent survey showed that 78% of employees prefer hybrid work models. Companies adopting flexible schedules report higher retention rates and improved employee satisfaction.",
+      "answer": [
+        "Employee Retention and Flexible Work Models"
+      ],
+      "variants": [
+        "Employee Retention and Flexible Work Models",
+        "How to Reduce Office Rent",
+        "The Future of Manufacturing",
+        "Inflation and Wage Growth"
+      ]
+    },
+    {
+      "question": "Прочитай слова и найди слово, которое читается не так, как в остальных вариантах (по произношению гласной).",
+      "answer": [
+        "asset"
+      ],
+      "variants": [
+        "market",
+        "target",
+        "asset",
+        "capital"
+      ]
+    },
+    {
+      "question": "Прочитай короткий отрывок и выбери верное утверждение о мнении автора. While automation improves productivity, it also raises concerns about job displacement. A balanced approach is needed to ensure both efficiency and workforce stability.",
+      "answer": [
+        "The author supports a balanced approach to automation."
+      ],
+      "variants": [
+        "The author believes automation should be completely avoided.",
+        "The author thinks automation has only positive effects.",
+        "The author supports a balanced approach to automation.",
+        "The author claims job losses are not a concern."
+      ]
+    },
+    {
+      "question": "Вставь правильную форму глагола. Last year, the company __________ (to launch) a new product line in Europe.",
+      "answer": [
+        "launched"
+      ],
+      "variants": [
+        "launches",
+        "launched",
+        "has launched",
+        "was launching"
+      ]
+    },
+    {
+      "question": "Выбери вариант, где правильно использован артикль. __________ GDP growth of 3% was considered strong for the region.",
+      "answer": [
+        "The"
+      ],
+      "variants": [
+        "A",
+        "An",
+        "The",
+        "(без артикля)"
+      ]
+    },
+    {
+      "question": "Определи, какой вариант делает предложение грамматически верным. If we __________ the budget now, we’ll avoid overspending later.",
+      "answer": [
+        "review"
+      ],
+      "variants": [
+        "review",
+        "will review",
+        "reviewed",
+        "had reviewed"
+      ]
+    },
+    {
+      "question": "Выбери правильную форму глагола в пассивном залоге. The annual report __________ by the finance team every June.",
+      "answer": [
+        "is prepared"
+      ],
+      "variants": [
+        "is prepared",
+        "prepares",
+        "was prepared",
+        "has been preparing"
+      ]
+    },
+    {
+      "question": "Вставь подходящее слово (модальный глагол). You __________ submit the expense report by Friday at the latest.",
+      "answer": [
+        "must"
+      ],
+      "variants": [
+        "can",
+        "may",
+        "must",
+        "might"
+      ]
+    },
+    {
+      "question": "Выбери вариант с правильным порядком слов в вопросе. __________ the sales figures for Q3 available yet?",
+      "answer": [
+        "Are"
+      ],
+      "variants": [
+        "Are",
+        "Do",
+        "Is",
+        "Have"
+      ]
+    },
+    {
+      "question": "Найди вариант, где сравнение построено правильно. This strategy is __________ than the previous one.",
+      "answer": [
+        "more effective"
+      ],
+      "variants": [
+        "more effective",
+        "most effective",
+        "effectiveer",
+        "more effectively"
+      ]
+    },
+    {
+      "question": "Вставь правильный предлог. We are focusing __________ improving customer retention this quarter.",
+      "answer": [
+        "on"
+      ],
+      "variants": [
+        "at",
+        "on",
+        "in",
+        "for"
+      ]
+    },
+    {
+      "question": "Выбери правильную форму причастия/герундия. After __________ the market data, the team proposed a new pricing model.",
+      "answer": [
+        "analyzing"
+      ],
+      "variants": [
+        "analyze",
+        "analyzing",
+        "analyzed",
+        "to analyze"
+      ]
+    },
+    {
+      "question": "Определи, какое предложение построено грамматически верно.",
+      "answer": [
+        "The manager suggests postponing the meeting."
+      ],
+      "variants": [
+        "The manager suggest to postpone the meeting.",
+        "The manager suggests postponing the meeting.",
+        "The manager suggests to postpone the meeting.",
+        "The manager suggested postpone the meeting."
+      ]
+    },
+    {
+      "question": "The finance department __________ the monthly budget every first Monday.",
+      "answer": [
+        "prepares"
+      ],
+      "variants": [
+        "prepares",
+        "is preparing",
+        "has prepared",
+        "prepared"
+      ]
+    },
+    {
+      "question": "Right now, the marketing team __________ the new campaign launch.",
+      "answer": [
+        "is planning"
+      ],
+      "variants": [
+        "plans",
+        "is planning",
+        "has planned",
+        "planned"
+      ]
+    },
+    {
+      "question": "We __________ three new clients this quarter.",
+      "answer": [
+        "have acquired"
+      ],
+      "variants": [
+        "acquire",
+        "are acquiring",
+        "have acquired",
+        "acquired"
+      ]
+    },
+    {
+      "question": "Last year, the company __________ a major restructuring to reduce costs.",
+      "answer": [
+        "implemented"
+      ],
+      "variants": [
+        "implements",
+        "is implementing",
+        "has implemented",
+        "implemented"
+      ]
+    },
+    {
+      "question": "Next month, the CEO __________ a speech at the industry conference.",
+      "answer": [
+        "will give"
+      ],
+      "variants": [
+        "gives",
+        "is giving",
+        "will give",
+        "gave"
+      ]
+    },
+    {
+      "question": "Sales __________ steadily over the past five years.",
+      "answer": [
+        "have grown"
+      ],
+      "variants": [
+        "grow",
+        "are growing",
+        "have grown",
+        "grew"
+      ]
+    },
+    {
+      "question": "Every quarter, the board __________ the financial results.",
+      "answer": [
+        "reviews"
+      ],
+      "variants": [
+        "reviews",
+        "is reviewing",
+        "has reviewed",
+        "reviewed"
+      ]
+    },
+    {
+      "question": "At the moment, we __________ negotiations with a potential partner in Germany.",
+      "answer": [
+        "are holding"
+      ],
+      "variants": [
+        "hold",
+        "are holding",
+        "have held",
+        "held"
+      ]
+    },
+    {
+      "question": "She __________ the report yet, so we can’t send it to the client.",
+      "answer": [
+        "hasn’t finished"
+      ],
+      "variants": [
+        "doesn’t finish",
+        "isn’t finishing",
+        "hasn’t finished",
+        "didn’t finish"
+      ]
+    },
+    {
+      "question": "Two years ago, the firm __________ its first overseas office in Singapore.",
+      "answer": [
+        "opened"
+      ],
+      "variants": [
+        "opens",
+        "is opening",
+        "has opened",
+        "opened"
+      ]
+    },
+    {
+      "question": "Tomorrow, the HR department __________ interviews for the senior analyst position.",
+      "answer": [
+        "will conduct"
+      ],
+      "variants": [
+        "conducts",
+        "is conducting",
+        "will conduct",
+        "conducted"
+      ]
+    },
+    {
+      "question": "Our team __________ this software for three years now, and it has improved efficiency significantly.",
+      "answer": [
+        "has been using"
+      ],
+      "variants": [
+        "uses",
+        "is using",
+        "has been using",
+        "used"
+      ]
+    },
+    {
+      "question": "In this company, all invoices __________ within 30 days of delivery.",
+      "answer": [
+        "are paid"
+      ],
+      "variants": [
+        "pay",
+        "are paid",
+        "have paid",
+        "paid"
+      ]
+    },
+    {
+      "question": "Currently, the new policy __________ across all regional branches.",
+      "answer": [
+        "is being implemented"
+      ],
+      "variants": [
+        "implements",
+        "is implemented",
+        "is being implemented",
+        "has been implemented"
+      ]
+    },
+    {
+      "question": "By the end of the meeting, the proposal __________ by all department heads.",
+      "answer": [
+        "will be approved"
+      ],
+      "variants": [
+        "approves",
+        "is approved",
+        "will be approved",
+        "was approved"
+      ]
+    },
+    {
+      "question": "Last quarter, several key contracts __________ due to changes in market conditions.",
+      "answer": [
+        "were lost"
+      ],
+      "variants": [
+        "lose",
+        "are lost",
+        "have been lost",
+        "were lost"
+      ]
+    },
+    {
+      "question": "Annual reports __________ by the end of April each year.",
+      "answer": [
+        "are submitted"
+      ],
+      "variants": [
+        "submit",
+        "are submitted",
+        "have submitted",
+        "submitted"
+      ]
+    },
+    {
+      "question": "The manager __________ the presentation slides right now to make them more client-friendly.",
+      "answer": [
+        "is adjusting"
+      ],
+      "variants": [
+        "adjusts",
+        "is adjusting",
+        "has adjusted",
+        "adjusted"
+      ]
+    },
+    {
+      "question": "So far, the team __________ two major risks in the project plan.",
+      "answer": [
+        "has identified"
+      ],
+      "variants": [
+        "identifies",
+        "is identifying",
+        "has identified",
+        "identified"
+      ]
+    },
+    {
+      "question": "If the market conditions stay the same, the share price __________ in the next quarter.",
+      "answer": [
+        "will rise"
+      ],
+      "variants": [
+        "rises",
+        "is rising",
+        "will rise",
+        "rose"
+      ]
+    }
+  ],
+  "path": "/home/exti/Desktop/HDD/some-shit/code/Ai work space/vshp/vshp_api/modules/vshp_editor/data/questions/test_1429.json"
+}
