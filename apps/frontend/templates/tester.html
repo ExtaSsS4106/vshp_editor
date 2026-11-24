@@ -1,0 +1,143 @@
+{% extends "extensions/base.html" %}
+
+{% block title %}Тестер — VSHP Panel{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tester.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+    <h1 class="h4 fw-bold mb-0 me-2">Тесты <span class="badge text-bg-secondary align-middle" id="cnt">0</span></h1>
+
+    <div class="input-group tester-search" style="max-width:420px">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input id="search" class="form-control" type="search" autocomplete="off"
+               placeholder="Поиск: id, вопрос, URL…  (Ctrl+K или /)">
+        <button class="btn btn-outline-secondary d-none" id="search-clear" type="button"
+                title="Очистить (Esc)">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="ms-auto d-flex gap-2">
+        <button class="btn btn-outline-secondary" id="btnReload" title="Обновить">
+            <i class="bi bi-arrow-clockwise" id="btnReloadIcon"></i>
+        </button>
+        <button type="button" class="btn btn-primary" id="btnAdd"
+                data-bs-toggle="modal" data-bs-target="#addModal">
+            <i class="bi bi-plus-lg me-1"></i>Добавить тест
+        </button>
+    </div>
+</div>
+
+<div id="runResult"></div>
+
+<div class="d-flex flex-column gap-2" id="grid"></div>
+
+<!-- добавление -->
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить тест</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="addId">ID теста (число)</label>
+                    <input class="form-control" id="addId" type="number" min="0" placeholder="Можно пусто — возьмётся из JSON">
+                </div>
+                <label class="form-label" for="addText">JSON</label>
+                <textarea class="form-control json" id="addText" rows="12" spellcheck="false" placeholder='[ ... ]'></textarea>
+                <div class="form-text">Формат: массив вопросов или объект <code>{"id":…,"questions":[…]}</code>.</div>
+                <div id="addResult" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="btnAddSubmit">Добавить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- вопросы / редактирование -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title me-3" id="editTitle">Тест</h5>
+                <ul class="nav nav-pills gap-1 me-auto">
+                    <li class="nav-item"><button type="button" class="nav-link active" id="tabVis" data-bs-toggle="pill" data-bs-target="#paneVis"><i class="bi bi-ui-checks me-1"></i>Визуально</button></li>
+                    <li class="nav-item"><button type="button" class="nav-link" id="tabJson" data-bs-toggle="pill" data-bs-target="#paneJson"><i class="bi bi-braces me-1"></i>JSON</button></li>
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="editError" class="alert alert-danger py-2 d-none"></div>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="paneVis"><div id="visual"></div></div>
+                    <div class="tab-pane fade" id="paneJson"><textarea class="form-control json" id="editJson" rows="24" spellcheck="false"></textarea></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="me-auto small text-body-secondary" id="editInfo"></span>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" id="btnEditSave"><i class="bi bi-save me-1"></i>Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Подтверждение (универсальная) -->
+<div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title d-flex align-items-center gap-2" id="confirmModalTitle">
+                    <i class="bi bi-question-circle-fill text-warning"></i>
+                    <span>Подтверждение</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0" id="confirmModalBody"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="confirmModalCancel">
+                    Отмена
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmModalOk">
+                    Да
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Сообщение об ошибке (универсальная) -->
+<div class="modal fade" id="alertModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title d-flex align-items-center gap-2" id="alertModalTitle">
+                    <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                    <span>Ошибка</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0" id="alertModalBody"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="alertModalOk">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/ws.js') }}"></script>
+
+<script type="module" src="{{ url_for('static', filename='js/tester/init.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/tester/test-lock.js') }}"></script>
+{% endblock %}

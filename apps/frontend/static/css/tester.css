@@ -1,0 +1,191 @@
+/* =====================================================================
+   Тестер — стили
+   ===================================================================== */
+
+/* ---------- Поиск ---------- */
+.tester-search input[type="search"]::-webkit-search-cancel-button {
+    display: none;                 /* свой крестик, не нативный */
+}
+.tester-search .form-control:focus {
+    box-shadow: 0 0 0 .2rem rgba(var(--bs-primary-rgb), .2);
+}
+.tester-search kbd {
+    background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: .25rem;
+    padding: 0 .3rem;
+    font-size: .7rem;
+    color: var(--bs-secondary-color);
+}
+
+/* Подсветка совпадения в превью вопросов */
+#grid mark {
+    background: rgba(var(--bs-warning-rgb), .5);
+    color: inherit;
+    padding: 0 .1em;
+    border-radius: .15em;
+}
+
+/* Спиннер у кнопки «Обновить» */
+@keyframes tester-spin {
+    to { transform: rotate(360deg); }
+}
+#btnReloadIcon.spin {
+    display: inline-block;
+    animation: tester-spin .55s ease;
+}
+
+/* ---------- Список вопросов в модалке ---------- */
+.q-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    position: relative;
+    min-height: 40px;
+}
+
+.q-item {
+    display: flex;
+    gap: .5rem;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: .5rem;
+    padding: .5rem;
+    transition: box-shadow .12s ease;
+    box-sizing: border-box;
+}
+.q-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+}
+
+.q-drag-handle {
+    cursor: grab;
+    user-select: none;
+    padding: .25rem .35rem;
+    border-radius: .25rem;
+    color: var(--bs-secondary-color);
+    display: flex;
+    align-items: flex-start;
+    flex-shrink: 0;
+}
+.q-drag-handle:hover {
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+}
+.q-drag-handle:active {
+    cursor: grabbing;
+}
+
+.q-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.q-header {
+    display: flex;
+    gap: .5rem;
+    align-items: flex-start;
+    margin-bottom: .5rem;
+}
+
+.q-num {
+    flex-shrink: 0;
+    min-width: 2.5rem;
+    display: inline-flex;
+    justify-content: center;
+    align-self: center;
+}
+
+.q-text {
+    resize: vertical;
+    min-height: 2.5rem;
+}
+
+.q-del {
+    flex-shrink: 0;
+}
+
+.q-variants {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    padding-left: 2.5rem;
+}
+
+.q-variant {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    padding: .25rem .35rem;
+    border-radius: .375rem;
+    transition: background .12s;
+}
+.q-variant:hover {
+    background: var(--bs-tertiary-bg);
+}
+.q-variant.is-correct {
+    background: rgba(var(--bs-success-rgb), .12);
+    box-shadow: inset 3px 0 0 var(--bs-success);
+}
+.q-variant.is-correct .q-variant-text {
+    border-color: var(--bs-success);
+    font-weight: 500;
+}
+
+.q-variant-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.q-variant-correct {
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.q-variant-del {
+    flex-shrink: 0;
+}
+
+.q-add-variant {
+    align-self: flex-start;
+}
+
+/* =====================================================================
+   Drag & drop вопросов — placeholder-подход, только по вертикали
+   ===================================================================== */
+
+body.is-dragging-items {
+    cursor: grabbing;
+    user-select: none;
+}
+body.is-dragging-items * {
+    user-select: none;
+}
+
+.q-item.tq-dragging {
+    position: fixed !important;
+    margin: 0 !important;
+    z-index: 1050;
+    box-sizing: border-box;
+    background: var(--bs-body-bg);
+    border: 1px solid rgba(var(--bs-primary-rgb), .5);
+    border-radius: .5rem;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .16), 0 2px 6px rgba(0, 0, 0, .08);
+    pointer-events: none;
+}
+.q-item.tq-dragging .q-drag-handle {
+    color: var(--bs-primary);
+}
+
+.q-item.tq-placeholder {
+    background: rgba(var(--bs-primary-rgb), .05);
+    border: 2px dashed rgba(var(--bs-primary-rgb), .45);
+    border-radius: .5rem;
+    box-sizing: border-box;
+    pointer-events: none;
+    padding: 0 !important;
+    overflow: hidden;
+}
+.q-item.tq-placeholder > * {
+    display: none;
+}

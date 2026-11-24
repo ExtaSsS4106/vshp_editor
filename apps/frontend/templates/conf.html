@@ -1,0 +1,526 @@
+{% extends "extensions/base.html" %}
+
+{% block title %}Настройки — VSHP Panel{% endblock %}
+
+{% block styles %}
+<style>
+  /* отметка изменённого поля */
+  [data-field].changed > .form-label::after,
+  [data-field].changed > .form-check > .form-check-label::after {
+    content: " •";
+    color: var(--bs-warning);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+  <h1 class="h4 fw-bold mb-0 me-auto">Настройки</h1>
+  <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-reload" title="Загрузить из .env заново">
+    <i class="bi bi-arrow-clockwise me-1" id="reload-icon"></i>Обновить
+  </button>
+</div>
+
+<div id="alerts"></div>
+
+<div class="alert alert-info d-flex gap-2 align-items-start py-2 small">
+  <i class="bi bi-info-circle-fill mt-1"></i>
+  <div>
+    Значения записываются в файл <code>.env</code>. Если приложение читает настройки при старте,
+    для применения изменений понадобится перезапуск сервера. Пароль хранится в файле в открытом виде.
+  </div>
+</div>
+
+<form id="cfg-form" novalidate autocomplete="off">
+  <fieldset id="cfg-fields">
+
+    <!-- ЭРП -->
+    <div class="card border-secondary-subtle mb-3">
+      <div class="card-header fw-semibold"><i class="bi bi-person-lock me-1"></i>Учётная запись ERP</div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6" data-field>
+            <label class="form-label" for="f-email">Email</label>
+            <input class="form-control" id="f-email" type="email" data-key="VSHP_EMAIL" data-type="email" autocomplete="off">
+            <div class="invalid-feedback"></div>
+            <div class="form-text"><code>VSHP_EMAIL</code></div>
+          </div>
+          <div class="col-md-6" data-field>
+            <label class="form-label" for="f-password">Пароль</label>
+            <div class="input-group has-validation">
+              <input class="form-control" id="f-password" type="password" data-key="VSHP_PASSWORD"
+                     data-type="text" data-secret="1" autocomplete="new-password">
+              <button class="btn btn-outline-secondary" type="button" id="pwd-toggle" title="Показать или скрыть">
+                <i class="bi bi-eye" id="pwd-icon"></i>
+              </button>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-text"><code>VSHP_PASSWORD</code></div>
+          </div>
+          <div class="col-12" data-field>
+            <label class="form-label" for="f-url">Адрес ERP</label>
+            <input class="form-control" id="f-url" type="url" data-key="VSHP_URL" data-type="url" placeholder="https://erp.example.com">
+            <div class="invalid-feedback"></div>
+            <div class="form-text"><code>VSHP_URL</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Браузер -->
+    <div class="card border-secondary-subtle mb-3">
+      <div class="card-header fw-semibold"><i class="bi bi-window me-1"></i>Браузер и логирование</div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6" data-field>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="f-headless" data-key="VSHP_HEADLESS" data-type="bool">
+              <label class="form-check-label" for="f-headless">Без окна браузера</label>
+            </div>
+            <div class="form-text"><code>VSHP_HEADLESS</code>: выключено, и окно видно (удобно для отладки)</div>
+          </div>
+          <div class="col-md-6" data-field>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="f-media" data-key="VSHP_BLOCK_MEDIA" data-type="bool">
+              <label class="form-check-label" for="f-media">Блокировать картинки и видео</label>
+            </div>
+            <div class="form-text"><code>VSHP_BLOCK_MEDIA</code>: страницы грузятся быстрее</div>
+          </div>
+          <div class="col-md-6" data-field>
+            <label class="form-label" for="f-wait">Ожидание элементов страницы</label>
+            <div class="input-group has-validation">
+              <input class="form-control" id="f-wait" type="number" min="0" step="1000" data-key="VSHP_WAIT_TIMEOUT" data-type="int" data-ms>
+              <span class="input-group-text">мс</span>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-text"><code>VSHP_WAIT_TIMEOUT</code> <span class="ms-hint text-body-secondary"></span></div>
+          </div>
+          <div class="col-md-6" data-field>
+            <label class="form-label" for="f-log">Уровень логов</label>
+            <select class="form-select" id="f-log" data-key="VSHP_LOG_LEVEL" data-type="text">
+              <option value="DEBUG">DEBUG</option>
+              <option value="INFO" selected>INFO</option>
+              <option value="WARNING">WARNING</option>
+              <option value="ERROR">ERROR</option>
+            </select>
+            <div class="invalid-feedback"></div>
+            <div class="form-text"><code>VSHP_LOG_LEVEL</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Тайминги -->
+    <div class="card border-secondary-subtle mb-3">
+      <div class="card-header fw-semibold"><i class="bi bi-stopwatch me-1"></i>Тайминги между действиями</div>
+      <div class="card-body">
+        <p class="small text-body-secondary mb-3">Паузы в миллисекундах. Для полей ввода лучше не ставить меньше 1–2 секунд.</p>
+        <div class="row g-3">
+          <div class="col-md-4" data-field>
+            <label class="form-label" for="f-t-form">Форма</label>
+            <div class="input-group has-validation">
+              <input class="form-control" id="f-t-form" type="number" min="0" step="100" data-key="VSHP_T_FORM" data-type="int" data-ms>
+              <span class="input-group-text">мс</span>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-text"><code>VSHP_T_FORM</code> <span class="ms-hint text-body-secondary"></span></div>
+          </div>
+          <div class="col-md-4" data-field>
+            <label class="form-label" for="f-t-question">Вопрос</label>
+            <div class="input-group has-validation">
+              <input class="form-control" id="f-t-question" type="number" min="0" step="100" data-key="VSHP_T_QUESTION" data-type="int" data-ms>
+              <span class="input-group-text">мс</span>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-text"><code>VSHP_T_QUESTION</code> <span class="ms-hint text-body-secondary"></span></div>
+          </div>
+          <div class="col-md-4" data-field>
+            <label class="form-label" for="f-t-field">Поле</label>
+            <div class="input-group has-validation">
+              <input class="form-control" id="f-t-field" type="number" min="0" step="100" data-key="VSHP_T_FIELD" data-type="int" data-ms>
+              <span class="input-group-text">мс</span>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-text"><code>VSHP_T_FIELD</code> <span class="ms-hint text-body-secondary"></span></div>
+          </div>
+          <div class="col-md-4" data-field>
+            <label class="form-label" for="f-t-variant">Вариант ответа</label>
+            <div class="input-group has-validation">
+              <input class="form-control" id="f-t-variant" type="number" min="0" step="100" data-key="VSHP_T_VARIANT" data-type="int" data-ms>
+              <span class="input-group-text">мс</span>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-text"><code>VSHP_T_VARIANT</code> <span class="ms-hint text-body-secondary"></span></div>
+          </div>
+          <div class="col-md-4" data-field>
+            <label class="form-label" for="f-t-save">Сохранение</label>
+            <div class="input-group has-validation">
+              <input class="form-control" id="f-t-save" type="number" min="0" step="100" data-key="VSHP_T_SAVE" data-type="int" data-ms>
+              <span class="input-group-text">мс</span>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-text"><code>VSHP_T_SAVE</code> <span class="ms-hint text-body-secondary"></span></div>
+          </div>
+          <div class="col-md-4" data-field>
+            <label class="form-label" for="f-t-short">Короткая пауза</label>
+            <div class="input-group has-validation">
+              <input class="form-control" id="f-t-short" type="number" min="0" step="100" data-key="VSHP_T_SHORT" data-type="int" data-ms>
+              <span class="input-group-text">мс</span>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-text"><code>VSHP_T_SHORT</code> <span class="ms-hint text-body-secondary"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Прочие -->
+    <div class="card border-secondary-subtle mb-3">
+      <div class="card-header d-flex align-items-center">
+        <span class="fw-semibold me-auto"><i class="bi bi-list-ul me-1"></i>Прочие переменные</span>
+        <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-var">
+          <i class="bi bi-plus-lg me-1"></i>Добавить переменную
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="row g-3" id="extras"></div>
+        <div id="added"></div>
+        <div class="text-body-secondary small" id="others-empty">Других переменных в <code>.env</code> нет.</div>
+      </div>
+    </div>
+
+  </fieldset>
+
+  <!-- Панель действий -->
+  <div class="sticky-bottom bg-body border-top py-2 d-flex align-items-center gap-2">
+    <span class="badge text-bg-secondary" id="dirty-badge">Без изменений</span>
+    <div class="ms-auto d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary" id="btn-reset" disabled>
+        <i class="bi bi-arrow-counterclockwise me-1"></i>Сбросить
+      </button>
+      <button type="submit" class="btn btn-primary" id="btn-save" disabled>
+        <span class="spinner-border spinner-border-sm me-1 d-none" id="save-spinner"></span>
+        <i class="bi bi-save me-1" id="save-icon"></i>Сохранить
+      </button>
+    </div>
+  </div>
+</form>
+
+<script>
+(function () {
+  "use strict";
+
+  // Итоговые адреса: API + "/get_config" и API + "/set_config".
+  // Поправьте префикс под вашу регистрацию blueprint, если он другой.
+  const API = "/api/config";
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+  const form = $("#cfg-form");
+  const fields = $("#cfg-fields");
+  const knownEls = $$("[data-key]", fields);
+  const knownKeys = new Set(knownEls.map(el => el.dataset.key));
+  const extrasBox = $("#extras");
+  const addedBox = $("#added");
+  const emptyNote = $("#others-empty");
+  const btnSave = $("#btn-save");
+  const btnReset = $("#btn-reset");
+  const badge = $("#dirty-badge");
+
+  const defaults = new Map(knownEls.map(el => [el, readEl0(el)]));   // значения формы по умолчанию
+  let original = {};        // ключ -> строка, как в .env на сервере
+  let extraEls = [];        // поля для переменных, которых нет в форме
+  let addedRows = [];       // строки, добавленные вручную
+  let busy = false;
+
+  function readEl0(el) {
+    if (el.dataset.type === "bool") return el.checked ? "1" : "0";
+    return el.dataset.secret === "1" ? el.value : el.value.trim();
+  }
+
+  const TRUE_VALUES = new Set(["1", "true", "yes", "on"]);
+  const KEY_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+  // ------------------------------------------------------------ значения
+  const isBool = el => el.dataset.type === "bool";
+  const isSecret = el => el.dataset.secret === "1";
+
+  function readEl(el) {
+    if (isBool(el)) return el.checked ? "1" : "0";
+    return isSecret(el) ? el.value : el.value.trim();
+  }
+
+  function norm(el, value) {
+    const v = value == null ? "" : String(value);
+    if (isBool(el)) return TRUE_VALUES.has(v.trim().toLowerCase()) ? "1" : "0";
+    return isSecret(el) ? v : v.trim();
+  }
+
+  function writeEl(el, value) {
+    const v = value == null ? "" : String(value);
+    if (isBool(el)) el.checked = TRUE_VALUES.has(v.trim().toLowerCase());
+    else el.value = v;
+  }
+
+  const allEls = () => knownEls.concat(extraEls);
+  const changedEls = () => allEls().filter(el =>
+    norm(el, readEl(el)) !== norm(el, original[el.dataset.key]));
+  const filledRows = () => addedRows.filter(r => r.k.value.trim() || r.v.value.trim());
+  const dirtyCount = () => changedEls().length + filledRows().length;
+
+  // ------------------------------------------------------------ проверка
+  function validate(el, value) {
+    if (/[\r\n]/.test(value)) return "Значение не должно содержать переводов строки";
+    switch (el.dataset.type) {
+      case "int":
+        if (!/^\d+$/.test(value)) return "Нужно целое число 0 или больше";
+        break;
+      case "url":
+        try {
+          const u = new URL(value);
+          if (u.protocol !== "http:" && u.protocol !== "https:") throw new Error();
+        } catch (e) {
+          return "Нужен адрес вида https://…";
+        }
+        break;
+      case "email":
+        if (value && !/^[^\s@]+@[^\s@]+$/.test(value)) return "Некорректный email";
+        break;
+    }
+    return "";
+  }
+
+  function setInvalid(input, message) {
+    input.classList.add("is-invalid");
+    const scope = input.closest(".input-group") || input.parentElement;
+    const fb = scope.querySelector(".invalid-feedback") || input.parentElement.querySelector(".invalid-feedback");
+    if (fb) fb.textContent = message;
+  }
+
+  function clearErrors() {
+    $$(".is-invalid", form).forEach(el => el.classList.remove("is-invalid"));
+  }
+
+  // ------------------------------------------------------------ отображение
+  function fmtMs(v) {
+    const n = parseInt(v, 10);
+    if (isNaN(n)) return "";
+    if (n < 1000) return n + " мс";
+    if (n < 60000) return "≈ " + String(Math.round(n / 100) / 10).replace(".", ",") + " с";
+    return "≈ " + String(Math.round(n / 6000) / 10).replace(".", ",") + " мин";
+  }
+
+  function refresh() {
+    const changed = new Set(changedEls());
+    allEls().forEach(el => {
+      const wrap = el.closest("[data-field]");
+      if (wrap) wrap.classList.toggle("changed", changed.has(el));
+      if (el.hasAttribute("data-ms") && wrap) {
+        const hint = wrap.querySelector(".ms-hint");
+        if (hint) hint.textContent = fmtMs(el.value);
+      }
+    });
+
+    const n = dirtyCount();
+    badge.textContent = n ? "Изменено: " + n : "Без изменений";
+    badge.className = "badge text-bg-" + (n ? "warning" : "secondary");
+    btnSave.disabled = busy || n === 0;
+    btnReset.disabled = busy || n === 0;
+    emptyNote.classList.toggle("d-none", extraEls.length > 0 || addedRows.length > 0);
+  }
+
+  function showAlert(text, kind = "success", ms = 5000) {
+    const el = document.createElement("div");
+    el.className = "alert alert-" + kind + " alert-dismissible py-2";
+    el.setAttribute("role", "alert");
+    el.append(document.createTextNode(text));
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "btn-close";
+    close.setAttribute("aria-label", "Закрыть");
+    close.addEventListener("click", () => el.remove());
+    el.append(close);
+    $("#alerts").prepend(el);
+    if (ms) setTimeout(() => el.remove(), ms);
+  }
+
+  function setBusy(on) {
+    busy = on;
+    fields.disabled = on;
+    $("#save-spinner").classList.toggle("d-none", !on);
+    $("#save-icon").classList.toggle("d-none", on);
+    $("#reload-icon").classList.toggle("spinner-border", on);
+    $("#reload-icon").classList.toggle("spinner-border-sm", on);
+    $("#btn-reload").disabled = on;
+    refresh();
+  }
+
+  // ------------------------------------------------------------ API
+  async function api(path, opts = {}) {
+    const res = await fetch(API + path, {
+      headers: { "Content-Type": "application/json" },
+      ...opts,
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) { /* пустой ответ */ }
+    if (!res.ok) throw new Error((data && data.error) || ("Ошибка сервера: HTTP " + res.status));
+    return data;
+  }
+
+  // ------------------------------------------------------------ переменные вне формы
+  function addExtra(key, value) {
+    const col = document.createElement("div");
+    col.className = "col-md-6";
+    col.dataset.field = key;
+
+    const input = document.createElement("input");
+    input.className = "form-control";
+    input.type = "text";
+    input.autocomplete = "off";
+    input.id = "x-" + key;
+    input.dataset.key = key;
+    input.dataset.type = "text";
+    input.value = value;
+
+    const label = document.createElement("label");
+    label.className = "form-label font-monospace small";
+    label.htmlFor = input.id;
+    label.textContent = key;
+
+    const fb = document.createElement("div");
+    fb.className = "invalid-feedback";
+
+    col.append(label, input, fb);
+    extrasBox.append(col);
+    extraEls.push(input);
+  }
+
+  function addRow() {
+    const root = document.createElement("div");
+    root.className = "row g-2 align-items-start mt-1";
+    root.innerHTML =
+      '<div class="col-md-5">' +
+        '<input class="form-control font-monospace" placeholder="ИМЯ_ПЕРЕМЕННОЙ" autocomplete="off">' +
+        '<div class="invalid-feedback"></div>' +
+      '</div>' +
+      '<div class="col-md-6"><input class="form-control" placeholder="значение" autocomplete="off"></div>' +
+      '<div class="col-md-1 d-grid"><button type="button" class="btn btn-outline-danger" title="Убрать">' +
+        '<i class="bi bi-x-lg"></i></button></div>';
+
+    const [k, v] = $$("input", root);
+    const row = { root, k, v };
+    $("button", root).addEventListener("click", () => {
+      root.remove();
+      addedRows = addedRows.filter(r => r !== row);
+      refresh();
+    });
+    addedBox.append(root);
+    addedRows.push(row);
+    k.focus();
+    refresh();
+  }
+
+  // ------------------------------------------------------------ загрузка / сброс
+  function applyOriginal() {
+    knownEls.forEach(el => {
+      const key = el.dataset.key;
+      if (key in original) writeEl(el, original[key]);
+      else {                                  // нет в .env: базой считаем значение по умолчанию из формы
+        original[key] = defaults.get(el);
+        writeEl(el, original[key]);
+      }
+    });
+    extraEls.forEach(el => writeEl(el, original[el.dataset.key]));
+    addedRows.forEach(r => r.root.remove());
+    addedRows = [];
+    clearErrors();
+    refresh();
+  }
+
+  async function load() {
+    setBusy(true);
+    try {
+      const data = await api("/get_config");
+      original = {};
+      Object.entries(data || {}).forEach(([k, v]) => { original[k] = v == null ? "" : String(v); });
+
+      extrasBox.replaceChildren();
+      extraEls = [];
+      Object.keys(original).filter(k => !knownKeys.has(k)).forEach(k => addExtra(k, original[k]));
+
+      applyOriginal();
+    } catch (e) {
+      showAlert("Не удалось загрузить настройки: " + e.message, "danger", 0);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // ------------------------------------------------------------ сохранение
+  async function save() {
+    clearErrors();
+    const payload = {};
+    let bad = 0;
+
+    changedEls().forEach(el => {
+      const value = readEl(el);
+      const err = validate(el, value);
+      if (err) { setInvalid(el, err); bad++; return; }
+      payload[el.dataset.key] = value;
+    });
+
+    const seen = new Set([...knownKeys, ...extraEls.map(el => el.dataset.key)]);
+    filledRows().forEach(r => {
+      const key = r.k.value.trim();
+      const value = r.v.value.trim();
+      if (!KEY_RE.test(key)) { setInvalid(r.k, "Только латиница, цифры и _; не с цифры"); bad++; return; }
+      if (seen.has(key)) { setInvalid(r.k, "Такая переменная уже есть"); bad++; return; }
+      if (/[\r\n]/.test(value)) { setInvalid(r.v, "Без переводов строки"); bad++; return; }
+      seen.add(key);
+      payload[key] = value;
+    });
+
+    if (bad) { showAlert("Исправьте отмеченные поля.", "danger"); return; }
+    if (!Object.keys(payload).length) return;
+
+    setBusy(true);
+    try {
+      await api("/set_config", { method: "PUT", body: JSON.stringify(payload) });
+      busy = false;
+      await load();
+      showAlert("Сохранено: " + Object.keys(payload).length + " " +
+        (Object.keys(payload).length === 1 ? "параметр" : "параметров") + ".");
+    } catch (e) {
+      showAlert("Не удалось сохранить: " + e.message, "danger", 0);
+      setBusy(false);
+    }
+  }
+
+  // ------------------------------------------------------------ события
+  form.addEventListener("input", refresh);
+  form.addEventListener("change", refresh);
+  form.addEventListener("submit", e => { e.preventDefault(); save(); });
+
+  btnReset.addEventListener("click", applyOriginal);
+  $("#btn-add-var").addEventListener("click", addRow);
+  $("#btn-reload").addEventListener("click", () => {
+    if (dirtyCount() && !confirm("Отбросить несохранённые изменения и загрузить заново?")) return;
+    load();
+  });
+
+  $("#pwd-toggle").addEventListener("click", () => {
+    const input = $("#f-password");
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    $("#pwd-icon").className = "bi " + (show ? "bi-eye-slash" : "bi-eye");
+  });
+
+  window.addEventListener("beforeunload", e => {
+    if (dirtyCount()) { e.preventDefault(); e.returnValue = ""; }
+  });
+
+  load();
+})();
+</script>
+{% endblock %}

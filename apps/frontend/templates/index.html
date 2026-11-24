@@ -1,0 +1,274 @@
+{% extends "extensions/base.html" %}
+
+{% block title %}Главная — VSHP Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+  <h1 class="h4 fw-bold mb-0 me-auto">Процессы</h1>
+
+  <span id="conn-badge" class="badge text-bg-secondary rounded-pill">
+    <i class="bi bi-plug me-1"></i>Подключение…
+  </span>
+
+  <div class="btn-group btn-group-sm">
+    <button type="button" class="btn btn-outline-danger" data-bulk="cancel_all">
+      <i class="bi bi-stop-circle me-1"></i>Остановить все
+    </button>
+    <button type="button" class="btn btn-outline-secondary" data-bulk="clear_finished">
+      <i class="bi bi-trash3 me-1"></i>Убрать завершённые
+    </button>
+  </div>
+</div>
+
+<div id="alerts"></div>
+
+<!-- Сводка -->
+<div class="row g-2 mb-3" id="summary">
+  <div class="col-6 col-md-3">
+    <div class="border border-secondary-subtle rounded p-2 px-3">
+      <div class="text-body-secondary small">Выполняются</div>
+      <div class="fs-4 fw-semibold text-warning" data-count="running">0</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="border border-secondary-subtle rounded p-2 px-3">
+      <div class="text-body-secondary small">На паузе</div>
+      <div class="fs-4 fw-semibold text-info" data-count="paused">0</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="border border-secondary-subtle rounded p-2 px-3">
+      <div class="text-body-secondary small">Завершены</div>
+      <div class="fs-4 fw-semibold text-success" data-count="done">0</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="border border-secondary-subtle rounded p-2 px-3">
+      <div class="text-body-secondary small">С ошибкой</div>
+      <div class="fs-4 fw-semibold text-danger" data-count="error">0</div>
+    </div>
+  </div>
+</div>
+
+<!-- Список -->
+<div class="card border-secondary-subtle">
+  <div class="card-header d-flex flex-wrap align-items-center gap-2">
+    <div class="btn-group btn-group-sm" id="filters" role="group" aria-label="Фильтр задач">
+      <button type="button" class="btn btn-outline-secondary active" data-filter="all">Все</button>
+      <button type="button" class="btn btn-outline-secondary" data-filter="active">Активные</button>
+      <button type="button" class="btn btn-outline-secondary" data-filter="library">Библиотека</button>
+      <button type="button" class="btn btn-outline-secondary" data-filter="tests">Тесты</button>
+      <button type="button" class="btn btn-outline-secondary" data-filter="error">Ошибки</button>
+    </div>
+    <span class="ms-auto text-body-secondary small" id="shown-count"></span>
+  </div>
+  <div class="list-group list-group-flush" id="jobs-list"></div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/ws.js') }}"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---- справочники
+  const NAMES = {
+    fill_test:   { title: "Публикация теста",          icon: "bi-cloud-upload" },
+    local_check: { title: "Локальная проверка теста",  icon: "bi-check2-square" },
+    scan_test:   { title: "Сканирование теста",        icon: "bi-search" },
+    collect:     { title: "Сбор материалов",           icon: "bi-collection" },
+    exchange:    { title: "Обмен материалами",         icon: "bi-arrow-left-right" },
+    scan:        { title: "Сканирование библиотеки",   icon: "bi-folder-symlink" },
+    upload:      { title: "Загрузка библиотеки",       icon: "bi-cloud-arrow-up" }
+  };
+  const STATES = {
+    running:   { cls: "warning",   text: "Выполняется", icon: "bi-hourglass-split" },
+    paused:    { cls: "info",      text: "Пауза",       icon: "bi-pause-circle" },
+    done:      { cls: "success",   text: "Готово",      icon: "bi-check-circle" },
+    error:     { cls: "danger",    text: "Ошибка",      icon: "bi-exclamation-triangle" },
+    cancelled: { cls: "secondary", text: "Отменено",    icon: "bi-slash-circle" }
+  };
+  const TEST_JOBS = ["fill_test", "local_check", "scan_test"];
+  const isActive = j => j.state === "running" || j.state === "paused";
+  const FILTERS = {
+    all:     () => true,
+    active:  isActive,
+    library: j => String(j.target || "").startsWith("library:"),
+    tests:   j => TEST_JOBS.includes(j.name),
+    error:   j => j.state === "error"
+  };
+  const ORDER = { running: 0, paused: 1, error: 2, done: 3, cancelled: 4 };
+
+  // ---- состояние страницы
+  let jobs = [];
+  let filter = "all";
+  const expanded = new Set();     // id задач с раскрытыми подробностями
+
+  const $list = document.getElementById("jobs-list");
+  const $shown = document.getElementById("shown-count");
+  const $alerts = document.getElementById("alerts");
+  const $conn = document.getElementById("conn-badge");
+
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+
+  function details(j) {
+    if (j.error) return String(j.error);
+    if (j.result == null) return "";
+    try {
+      const text = typeof j.result === "string" ? j.result : JSON.stringify(j.result, null, 2);
+      return text.length > 3000 ? text.slice(0, 3000) + "\n…" : text;
+    } catch (e) {
+      return String(j.result);
+    }
+  }
+
+  // ---- отрисовка
+  function row(j) {
+    const st = STATES[j.state] || { cls: "secondary", text: j.state, icon: "bi-question-circle" };
+    const meta = NAMES[j.name] || { title: j.name, icon: "bi-gear" };
+    const body = details(j);
+    const open = expanded.has(j.id);
+
+    const progress = j.state === "running"
+      ? '<div class="progress mt-2" style="height:4px"><div class="progress-bar progress-bar-striped progress-bar-animated bg-warning w-100"></div></div>'
+      : j.state === "paused"
+        ? '<div class="progress mt-2" style="height:4px"><div class="progress-bar progress-bar-striped bg-info w-100"></div></div>'
+        : "";
+
+    const buttons = [];
+    if (j.state === "running") {
+      buttons.push(btn("pause", j.id, "btn-outline-info", "bi-pause-fill", "Пауза"));
+    }
+    if (j.state === "paused") {
+      buttons.push(btn("resume", j.id, "btn-outline-success", "bi-play-fill", "Продолжить"));
+    }
+    if (isActive(j)) {
+      buttons.push(btn("cancel", j.id, "btn-outline-danger", "bi-stop-fill", "Остановить"));
+    } else {
+      buttons.push(btn("cancel", j.id, "btn-outline-secondary", "bi-x-lg", "Убрать"));
+    }
+    if (body) {
+      buttons.unshift(
+        '<button type="button" class="btn btn-sm btn-outline-secondary" data-action="toggle" data-job="' + esc(j.id) + '" title="Подробности">' +
+        '<i class="bi ' + (open ? "bi-chevron-up" : "bi-chevron-down") + '"></i></button>'
+      );
+    }
+
+    return (
+      '<div class="list-group-item py-3">' +
+        '<div class="d-flex flex-wrap align-items-center gap-3">' +
+          '<i class="bi ' + meta.icon + ' fs-4 text-body-secondary"></i>' +
+          '<div class="me-auto">' +
+            '<div class="fw-semibold">' + esc(meta.title) + '</div>' +
+            '<div class="text-body-secondary small">' + esc(j.name) + ' · id: <code>' + esc(j.target) + '</code></div>' +
+          '</div>' +
+          '<span class="badge text-bg-' + st.cls + ' rounded-pill"><i class="bi ' + st.icon + ' me-1"></i>' + esc(st.text) + '</span>' +
+          '<div class="btn-group btn-group-sm">' + buttons.join("") + '</div>' +
+        '</div>' +
+        progress +
+        (body
+          ? '<pre class="small mt-3 mb-0 p-2 rounded border border-secondary-subtle overflow-auto' +
+            (open ? "" : " d-none") + (j.error ? " text-danger-emphasis" : "") +
+            '" style="max-height:240px">' + esc(body) + '</pre>'
+          : "") +
+      '</div>'
+    );
+  }
+
+  function btn(action, id, cls, icon, label) {
+    return '<button type="button" class="btn btn-sm ' + cls + '" data-action="' + action +
+      '" data-job="' + esc(id) + '"><i class="bi ' + icon + ' me-1"></i>' + label + '</button>';
+  }
+
+  function render() {
+    // сводка
+    ["running", "paused", "done", "error"].forEach(s => {
+      document.querySelector('[data-count="' + s + '"]').textContent =
+        jobs.filter(j => j.state === s).length;
+    });
+
+    const shown = jobs
+      .filter(FILTERS[filter])
+      .sort((a, b) => (ORDER[a.state] ?? 9) - (ORDER[b.state] ?? 9) || String(a.id).localeCompare(String(b.id)));
+
+    $shown.textContent = shown.length ? "Показано: " + shown.length + " из " + jobs.length : "";
+
+    if (!shown.length) {
+      $list.innerHTML =
+        '<div class="text-center text-body-secondary py-5">' +
+          '<i class="bi bi-inbox display-6 d-block mb-2"></i>' +
+          (jobs.length
+            ? "В этом фильтре задач нет."
+            : "Задач нет. Запустите публикацию теста или загрузку библиотеки, и они появятся здесь.") +
+        '</div>';
+      return;
+    }
+    $list.innerHTML = shown.map(row).join("");
+  }
+
+  function showAlert(message) {
+    const el = document.createElement("div");
+    el.className = "alert alert-danger alert-dismissible fade show py-2";
+    el.setAttribute("role", "alert");
+    el.innerHTML = esc(message) + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>';
+    $alerts.prepend(el);
+    setTimeout(() => el.remove(), 8000);
+  }
+
+  // ---- события интерфейса
+  $list.addEventListener("click", e => {
+    const b = e.target.closest("[data-action]");
+    if (!b) return;
+    const action = b.dataset.action, id = b.dataset.job;
+
+    if (action === "toggle") {
+      expanded.has(id) ? expanded.delete(id) : expanded.add(id);
+      render();
+      return;
+    }
+    if (action === "cancel") {
+      const job = jobs.find(j => j.id === id);
+      if (job && isActive(job) && !confirm("Остановить задачу «" + id + "»?")) return;
+    }
+    b.disabled = true;
+    JobsWS.act(action, id).catch(err => showAlert(err.message)).finally(() => { b.disabled = false; });
+  });
+
+  document.querySelectorAll("[data-bulk]").forEach(b => {
+    b.addEventListener("click", () => {
+      const action = b.dataset.bulk;
+      if (action === "cancel_all" && !confirm("Остановить все запущенные задачи?")) return;
+      JobsWS.act(action).catch(err => showAlert(err.message));
+    });
+  });
+
+  document.getElementById("filters").addEventListener("click", e => {
+    const b = e.target.closest("[data-filter]");
+    if (!b) return;
+    filter = b.dataset.filter;
+    document.querySelectorAll("#filters .btn").forEach(x => x.classList.toggle("active", x === b));
+    render();
+  });
+
+  // ---- подключение
+  JobsWS.onStatus(online => {
+    $conn.className = "badge rounded-pill text-bg-" + (online ? "success" : "danger");
+    $conn.innerHTML = online
+      ? '<i class="bi bi-wifi me-1"></i>Онлайн'
+      : '<i class="bi bi-wifi-off me-1"></i>Нет связи';
+  });
+  JobsWS.onError(showAlert);
+
+  JobsWS.subscribe("all", list => {
+    jobs = list;
+    const ids = new Set(list.map(j => j.id));
+    expanded.forEach(id => { if (!ids.has(id)) expanded.delete(id); });
+    render();
+  });
+
+  render();
+})();
+</script>
+{% endblock %}
